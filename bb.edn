@@ -30,6 +30,7 @@
  :aliases {:native-image
            {:main-opts ["-m" "clj.native-image"
                         "bbb.core"
+                        ;; used by httpkit
                         "-H:ReflectionConfigurationFiles=reflection-config.json"
                         "--initialize-at-build-time"
                         "-H:EnableURLProtocols=http,https,jar"
