@@ -22,11 +22,11 @@
         ;; added deps
         babashka/babashka {:local/root "../babashka"}
         #_#_babashka/babashka {:mvn/version "0.7.3"}
-        #_#_#_#_#_#_clj-http-lite/clj-http-lite {:git/url "https://github.com/borkdude/clj-http-lite"
-                                                 :sha "a75db6db60eadcf609104a979b29499f54b3665b"}
-                cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
-                                     :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
-            http-kit/http-kit {:mvn/version "2.5.3"}}
+        #_#_clj-http-lite/clj-http-lite {:git/url "https://github.com/borkdude/clj-http-lite"
+                                         :sha "a75db6db60eadcf609104a979b29499f54b3665b"}
+        cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
+                             :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
+        http-kit/http-kit {:mvn/version "2.5.3"}}
  :aliases {:native-image
            {:main-opts ["-m" "clj.native-image"
                         "bbb.core"
