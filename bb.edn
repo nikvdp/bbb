@@ -1,8 +1,6 @@
 {:paths ["src"]
  :deps {borkdude/spartan.spec {:git/url "https://github.com/borkdude/spartan.spec"
                                :sha "12947185b4f8b8ff8ee3bc0f19c98dbde54d4c90"}
-        cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
-                             :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
         selmer/selmer {:mvn/version "1.12.44"},
         org.clojure/clojure {:mvn/version "1.11.0-alpha1"},
         org.clojure/tools.logging {:mvn/version "1.1.0"},
@@ -21,12 +19,17 @@
         babashka/fs {:mvn/version "0.0.5"},
         nrepl/bencode {:mvn/version "1.1.0"},
         org.clojure/core.async {:mvn/version "1.4.627"},
-        #_#_clj-http-lite/clj-http-lite {:git/url "https://github.com/borkdude/clj-http-lite"
-                                         :sha "a75db6db60eadcf609104a979b29499f54b3665b"}
-        http-kit/http-kit {:mvn/version "2.5.3"}}
+        ;; added deps
+        babashka/babashka {:local/root "../babashka"}
+        #_#_babashka/babashka {:mvn/version "0.7.3"}
+        #_#_#_#_#_#_clj-http-lite/clj-http-lite {:git/url "https://github.com/borkdude/clj-http-lite"
+                                                 :sha "a75db6db60eadcf609104a979b29499f54b3665b"}
+                cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
+                                     :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
+            http-kit/http-kit {:mvn/version "2.5.3"}}
  :aliases {:native-image
            {:main-opts ["-m" "clj.native-image"
-                        "test.core"
+                        "bbb.core"
                         "-H:ReflectionConfigurationFiles=reflection-config.json"
                         "--initialize-at-build-time"
                         "-H:EnableURLProtocols=http,https,jar"
@@ -41,7 +44,7 @@
                         "--report-unsupported-elements-at-runtime"
                         "-H:+AllowIncompleteClasspath"
                         ;; optional native image name override
-                        "-H:Name=pmenu"]
+                        "-H:Name=bbb"]
             :jvm-opts ["-Dclojure.compiler.direct-linking=true"
                        "-Dclojure.spec.skip-macros=true"]
             :extra-deps
