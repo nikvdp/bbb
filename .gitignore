@@ -1,0 +1,4 @@
+classes/
+.clj-kondo/
+.cpcache/
+.lsp/
