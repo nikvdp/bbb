@@ -17,6 +17,3 @@
                   (require '[cli-matic.core :refer [run-cmd]]))))))
 
      (climatic-hax)))
-
-(defn -main [& args]
-  (println "here we are"))

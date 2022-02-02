@@ -1,8 +1,10 @@
 (ns example.core
   (:require
-   #?(:bb [bbb.core :refer [climatic-hax]] ;; <-- really this should be a no-op, but not sure how to 
-                                           ;; do that with reader conditionals
-      :clj [cli-matic.core :refer [run-cmd]]))
+   #?(:bb [bbb.core :refer [climatic-hax]]
+      :clj [cli-matic.core :refer [run-cmd]
+            #_"👆 this should really be a no-op, but not sure how to do that
+            with reader conditionals"]))
+
   (:gen-class))
 
 #?(:bb (climatic-hax)
@@ -18,5 +20,5 @@
             :opts        [{:as "example" :option "example" :short "e"
                            :type :string}]
             :runs (fn [& args]
-                    (println "I weas called as an example with args: " args))}))
+                    (println "I was called as an example with args: " args))}))
 
