@@ -20,7 +20,11 @@
         nrepl/bencode {:mvn/version "1.1.0"},
         org.clojure/core.async {:mvn/version "1.4.627"},
         ;; added deps
-        babashka/babashka {:local/root "../babashka"}
+        #_#_babashka/babashka {:local/root "../babashka"}
+
+        #_#_#_"fails with a 'Manifest type not detected when findig deps for babashka.core msg'"
+            babashka/babashka {:git/url "https://github.com/babashka/babashka"
+                               :sha "eef4690ba47c90b20eef4acfd7b9607496e5b6d1"}
         #_#_babashka/babashka {:mvn/version "0.7.3"}
         #_#_clj-http-lite/clj-http-lite {:git/url "https://github.com/borkdude/clj-http-lite"
                                          :sha "a75db6db60eadcf609104a979b29499f54b3665b"}
@@ -42,7 +46,6 @@
                         "--initialize-at-build-time"
                         "--no-fallback"
                         "--native-image-info"
-                        ;; "-jar up.jar"
                         "-H:+InlineBeforeAnalysis"
                         "--report-unsupported-elements-at-runtime"
                         "-H:+AllowIncompleteClasspath"
