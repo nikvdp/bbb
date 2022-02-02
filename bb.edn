@@ -29,6 +29,7 @@
         http-kit/http-kit {:mvn/version "2.5.3"}}
  :aliases {:native-image
            {:main-opts ["-m" "clj.native-image"
+                        #_"podcast.uploader"
                         "bbb.core"
                         ;; used by httpkit
                         "-H:ReflectionConfigurationFiles=reflection-config.json"
@@ -36,6 +37,7 @@
                         "-H:EnableURLProtocols=http,https,jar"
                         "--enable-all-security-services"
                         "-H:+JNI"
+                        ;; also used by httpkit
                         "--initialize-at-run-time=org.httpkit.client.ClientSslEngineFactory$SSLHolder"
                         "--initialize-at-build-time"
                         "--no-fallback"

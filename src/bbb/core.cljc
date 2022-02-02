@@ -1,9 +1,4 @@
-(ns bbb.core
-  (:require
-
-   [babashka.impl.pprint]
-   [babashka.impl.httpkit-client])
-  (:gen-class))
+(ns bbb.core (:gen-class))
 
 #?(:bb
    (do
