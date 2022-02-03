@@ -20,7 +20,7 @@
         nrepl/bencode {:mvn/version "1.1.0"},
         org.clojure/core.async {:mvn/version "1.4.627"},
         ;; added deps
-        babashka/babashka {:local/root "../../babashka"}
+        #_#_babashka/babashka {:local/root "../babashka"}
 
         #_#_#_"fails with a 'Manifest type not detected when findig deps for babashka.core msg'"
             babashka/babashka {:git/url "https://github.com/babashka/babashka"
@@ -32,7 +32,9 @@
                              :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
         http-kit/http-kit {:mvn/version "2.5.3"}}
  :aliases {:native-image
-           {:main-opts ["-m" "clj.native-image" "example.core"
+           {:main-opts ["-m" "clj.native-image"
+                        #_"podcast.uploader"
+                        "bbb.core"
                         ;; used by httpkit
                         "-H:ReflectionConfigurationFiles=reflection-config.json"
                         "--initialize-at-build-time"
