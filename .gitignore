@@ -5,3 +5,5 @@ classes/
 *.build_artifacts.txt
 bbb
 bb
+reports/
+example.core
