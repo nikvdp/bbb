@@ -20,7 +20,7 @@
         nrepl/bencode {:mvn/version "1.1.0"},
         org.clojure/core.async {:mvn/version "1.4.627"},
         ;; added deps
-        #_#_babashka/babashka {:local/root "../babashka"}
+        babashka/babashka {:local/root "../babashka"}
 
         #_#_#_"fails with a 'Manifest type not detected when findig deps for babashka.core msg'"
             babashka/babashka {:git/url "https://github.com/babashka/babashka"
@@ -32,25 +32,9 @@
                              :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
         http-kit/http-kit {:mvn/version "2.5.3"}}
  :aliases {:native-image
-           {:main-opts ["-m" "clj.native-image"
-                        #_"podcast.uploader"
-                        "bbb.core"
-                        ;; used by httpkit
-                        "-H:ReflectionConfigurationFiles=reflection-config.json"
+           {:main-opts ["-m" "clj.native-image" "example.core"
                         "--initialize-at-build-time"
-                        "-H:EnableURLProtocols=http,https,jar"
-                        "--enable-all-security-services"
-                        "-H:+JNI"
-                        ;; also used by httpkit
-                        "--initialize-at-run-time=org.httpkit.client.ClientSslEngineFactory$SSLHolder"
-                        "--initialize-at-build-time"
-                        "--no-fallback"
-                        "--native-image-info"
-                        "-H:+InlineBeforeAnalysis"
-                        "--report-unsupported-elements-at-runtime"
-                        "-H:+AllowIncompleteClasspath"
-                        ;; optional native image name override
-                        "-H:Name=bbb"]
+                        "--allow-incomplete-classpath"]
             :jvm-opts ["-Dclojure.compiler.direct-linking=true"
                        "-Dclojure.spec.skip-macros=true"]
             :extra-deps
