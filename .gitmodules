@@ -1,0 +1,3 @@
+[submodule "vendor/babashka"]
+	path = vendor/babashka
+	url = https://github.com/babashka/babashka
