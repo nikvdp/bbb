@@ -20,7 +20,7 @@
         nrepl/bencode {:mvn/version "1.1.0"},
         org.clojure/core.async {:mvn/version "1.4.627"},
         ;; added deps
-        babashka/babashka {:local/root "../babashka"}
+        babashka/babashka {:local/root "vendor/babashka"}
 
         cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
                              :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
