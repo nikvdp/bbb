@@ -1,8 +1,12 @@
 # BabashkaBins
 
-tl;dr: A low friction quick and easy way to develop CLI tools in Clojure that you can distribute as self-contained static binaries (babashka-bins)
+A low friction, quick and easy way to develop CLI tools in Clojure that
+you can distribute as self-contained static binaries (babashka-bins).
 
-In other words, GraalVM-magic on easy mode.
+`bbb` lets you take a standard Clojure project layout, run it under both JVM
+Clojure and [babashka](https://github.com/babashka/babashka), and then
+automates the compilation of your project into a static binary with GraalVM for
+you when it's time to distribute it.
 
 ## The problem
 
@@ -21,26 +25,30 @@ A good solution for this problem should have the following properties:
 
 - **An easy and fast dev experience**: You should be able to re-run your CLI immediately and see any changes, no waiting for compilation or waiting 2 seconds for the JVM to launch
 - **Easy command-line parsing**: ergonomic support for infinitely nested subcommands and long and short flags + help texts.
-- **A good deploy story**: once your app is ready to distribute it should be easy to create a single fast-starting static binary that’s you can deploy to your users without asking them to install any other software.
+- **A good deploy story**: once your app is ready to distribute it should be easy to create a single fast-starting static binary that you can deploy to your users without asking them to install any other software.
 
 Babashka and cli-matic to the rescue!
 
 [Babashka](https://github.com/borkdude/babashka) is a Clojure interpreter compiled under [GraalVM](https://www.graalvm.org/). Since Babashka itself is compiled with GraalVM, anything that runs in babashka will by definition also work under GraalVM. While we can’t make GraalVM more compatible, we can at least find out that a certain library or approach won’t work *early*.
 
 
-[cli-matic][cli-matic] is an easy to use library for ergonomically parsing command-line arguments and building complex CLI tools, even with nested subcommands, something that can be quite tricky with the standard Clojure CLI parsing toolkit. [Cli-matic][cli-matic] can run under babashka, but it requires some [pretty intense hackery][](https://github.com/borkdude/spartan.spec/blob/master/examples/cli_matic.clj#L1-L19). This project provides a standardized interface to [cli-matic][] that works the same way, regardless of whether it’s called from JVM Clojure or babashka.
+[cli-matic][cli-matic] is an easy to use library for ergonomically parsing command-line arguments and building complex CLI tools, even with nested subcommands, something that can be quite tricky with the standard Clojure CLI parsing toolkit. [cli-matic][cli-matic] can run under babashka, but it requires some [pretty intense hackery](https://github.com/borkdude/spartan.spec/blob/master/examples/cli_matic.clj#L1-L19). This project provides a standardized interface to [cli-matic][] that works the same way, regardless of whether it’s called from JVM Clojure or babashka.
 
 With these tools together, this project get you to something pretty close to the ideal solution above:
 
-- Use `babashka` during development for a quick iteration cycle and fast startup times
-- Use `[cli-matic`][cli-matic] to define the CLI parsing logic, and be sure it will work the same in your `bb` testing and in the compiled static binary
-- Automate compiling your project into a static binary w/GraalVM, without having to spend hours learning how to tweak GraalVM or finding out that some feature that works fine in JVM Clojure is not compatible with GraalVM
+- Use [`babashka`][babashka] during development for a quick iteration cycle and
+  fast startup times
+- Use [`cli-matic`][cli-matic] to define the CLI parsing logic, and be
+  confident that it will work the same way in the compiled static binary
+- Automatically compile your project into a static binary with GraalVM. No need
+  to spend hours learning how to tweak Graal or finding out that some feature
+  that works fine in JVM Clojure is not compatible with GraalVM
 
 ## Prerequisites
 
-- `[babashka](https://github.com/borkdude/babashka)`
-- `[clojure](https://clojure.org/guides/getting_started)` / `[clj](https://clojure.org/guides/getting_started)` cli
-- [GraalVM](https://www.graalvm.org/) and it’s `native-image` installed via `gu`. You can install from their website, or if you trust my `bash`-ing, try these: 
+- [`babashka`](https://github.com/borkdude/babashka)
+- [`clojure`](https://clojure.org/guides/getting_started) / [`clj`](https://clojure.org/guides/getting_started) cli
+- [GraalVM](https://www.graalvm.org/) and it’s `native-image` component installed via `gu`. You can install from their website, or if you trust my `bash`-ing, try the below: 
     
   <details><summary>GraalVM CLI Installation instructions</summary>
   <p>
@@ -72,8 +80,8 @@ With these tools together, this project get you to something pretty close to the
     ```
     
   - The above will install GraalVM for you. To activate it and make it
-    permanent, you'll also need to paste in this and add it to your
-    `~/.bashrc`/`~/.zshrc` file. 
+    permanent, you'll also need to add the below to your `~/.bashrc`/`~/.zshrc`
+    file and start a new terminal session. 
     
     ```bash
     graalvm-setup() {
@@ -105,14 +113,21 @@ With these tools together, this project get you to something pretty close to the
 ### Prepare your project
 
 1. Clone this repo
-2. Add your code under the `src/` folder using the standard Clojure folder structure, using a namespace and a `main` function
-    1. If you plan to use [`cli-matic`][cli-matic] (recommended) to parse your CLI options, require it from `bbb.core` (see `example.core`)
-3. Edit `deps.edn` and change the `:main-ns` key (under `:aliases` → `:native-image` → `:exec-args` → `:main-ns`) the “example.core” under :aliases :native-image :main-opts to use your project’s namespace
-
-1. To run your project, use `bb -m <your-namespace>`
-2. To compile your project, do `clj -A:native-image`, and your project will be compiled to `bb`.
-    
-    You can also compile a different namesapce by doing `clj -A:native-image '{:main-ns "some.otherns"}`
+2. Add your code under the `src/` folder using the standard Clojure folder
+   structure, and make sure the namesapce you'll be using as your app's entrypoint has a `-main` function.
+    - If you plan to use [`cli-matic`][cli-matic] (recommended) to parse your
+      CLI options, require `run-cmd` from `bbb.core` (see `example.core` for
+      an example)
+    - **Make sure to add `(:gen-class)` to your namespace's `(ns)` macro** to prevent
+      head-scratch inducing GraalVM related issues later!
+3. Edit `deps.edn` and change the `:main-ns` key near the top of the file
+   (under `:aliases`→`:native-image`→`:exec-args`→`:main-ns`) from
+   `example.core` to your your project’s namespace
+4. To run your project, use `bb -m <your-namespace>`
+5. To compile your project, do `clj -A:native-image`, and your static binary
+   will be put in the project root of the folder with the name `bb`. (You can
+   also compile a different namespace by doing `clj -A:native-image '{:main-ns
+   "some.otherns"}`)
     
 
 ### Running your project (dev mode)
@@ -134,12 +149,15 @@ I was called as an example with args:
 If you want to verify that you haven’t broken JVM Clojure compatibility you can also run the equivalent JVM Clojure command:
 
 ```bash
-clj -m <your-ns-with-a-main-fn>
+clj -m example.core
 ```
 
 ### Compiling your project to a static binary
 
-If you have GraalVM installed correctly, compiling your project is as simple as:
+If you have GraalVM and it's `native-image` tool installed and configured,
+thanks to
+[clj.native-image](https://github.com/taylorwood/clj.native-image.git)
+compiling your project is as simple as:
 
 ```
 clj -X:native-image
@@ -152,6 +170,8 @@ You can also override the `:main-ns` configured in `deps.edn` from the command l
 ```bash
 clj -X:native-image '{:main-ns "some-other-namespace.core"}'
 ```
+
+The static binary will end up in your root folder with the name `bb`.
 
 ### Adding dependencies
 

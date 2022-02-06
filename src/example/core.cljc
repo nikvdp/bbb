@@ -1,6 +1,7 @@
 (ns example.core
   (:require
-   [bbb.core :refer [run-cmd]]))
+   [bbb.core :refer [run-cmd]])
+  (:gen-class #_"👈 this is *required* for native-image compilation under GraalVM"))
 
 (defn -main
   [& args]
