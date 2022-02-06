@@ -113,8 +113,9 @@ With these tools together, this project get you to something pretty close to the
 ### Prepare your project
 
 1. Clone this repo
+2. Run `git submodule update --init --recursive` to pull in babashka's source.
 2. Add your code under the `src/` folder using the standard Clojure folder
-   structure, and make sure the namesapce you'll be using as your app's entrypoint has a `-main` function.
+   structure, and make sure the namespace you'll be using as your app's entrypoint has a `-main` function.
     - If you plan to use [`cli-matic`][cli-matic] (recommended) to parse your
       CLI options, require `run-cmd` from `bbb.core` (see `example.core` for
       an example)
@@ -123,11 +124,6 @@ With these tools together, this project get you to something pretty close to the
 3. Edit `deps.edn` and change the `:main-ns` key near the top of the file
    (under `:aliases`→`:native-image`→`:exec-args`→`:main-ns`) from
    `example.core` to your your project’s namespace
-4. To run your project, use `bb -m <your-namespace>`
-5. To compile your project, do `clj -A:native-image`, and your static binary
-   will be put in the project root of the folder with the name `bb`. (You can
-   also compile a different namespace by doing `clj -A:native-image '{:main-ns
-   "some.otherns"}`)
     
 
 ### Running your project (dev mode)
@@ -146,7 +142,8 @@ I was called as an example with args:
 ({:example cool, :_arguments [so many args]})
 ```
 
-If you want to verify that you haven’t broken JVM Clojure compatibility you can also run the equivalent JVM Clojure command:
+If you want to verify that you haven’t broken JVM Clojure compatibility you can
+also run it with JVM Clojure with a similar command:
 
 ```bash
 clj -m example.core
