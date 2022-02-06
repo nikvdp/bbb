@@ -1,4 +1,13 @@
-{:paths ["src"]
+{:aliases {:native-image
+           {:exec-args {:main-ns "example.core"}
+            :exec-fn bbb.dep-edn-alias/tools-deps-entrypoint
+            :jvm-opts ["-Dclojure.compiler.direct-linking=true"
+                       "-Dclojure.spec.skip-macros=true"]
+            :extra-deps
+            {clj.native-image/clj.native-image
+             {:git/url "https://github.com/taylorwood/clj.native-image.git"
+              :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}
+ :paths ["src"]
  :deps {borkdude/spartan.spec {:git/url "https://github.com/borkdude/spartan.spec"
                                :sha "12947185b4f8b8ff8ee3bc0f19c98dbde54d4c90"}
         selmer/selmer {:mvn/version "1.12.44"},
@@ -24,15 +33,5 @@
 
         cli-matic/cli-matic {:git/url "https://github.com/l3nz/cli-matic.git"
                              :sha "1aa64070fec1556998b5bbb95d72f3513667ff6a"}
-        http-kit/http-kit {:mvn/version "2.5.3"}}
- :aliases {:native-image
-           {:main-opts ["-m" "clj.native-image" "example.core"
-                        "--initialize-at-build-time"
-                        "--allow-incomplete-classpath"]
-            :jvm-opts ["-Dclojure.compiler.direct-linking=true"
-                       "-Dclojure.spec.skip-macros=true"]
-            :extra-deps
-            {clj.native-image/clj.native-image
-             {:git/url "https://github.com/taylorwood/clj.native-image.git"
-              :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}}
+        http-kit/http-kit {:mvn/version "2.5.3"}}}
 

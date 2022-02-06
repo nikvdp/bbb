@@ -1,74 +1,171 @@
-# `bbb` - BabashkaBins
+# BabashkaBins
+
+tl;dr: A low friction quick and easy way to develop CLI tools in Clojure that you can distribute as self-contained static binaries (babashka-bins)
+
+In other words, GraalVM-magic on easy mode.
 
 ## The problem
-Been learning Clojure lately and enjoying it greatly, but one thing I miss from
-Golang is how great the build and deploy cycle for is for building CLI tools.
-Once your project is set up just type a quick `go run` or `go build` and you
-can instantly run your app or get an easy to deploy single binary that will
-run anywhere.
 
-On top of it, there are great libraries like
-[viper](https://github.com/spf13/cobra) that make building CLI tools with
-subcommands and complicated parsing easy and fast. 
+Clojure is great, but building and deploying CLI tools with Clojure is painful enough that hardly anyone does it, which is a pity.
 
-Getting to that level of integration in Clojure is hard since Clojure is a
-hosted language and needs to run on the JVM, but with GraalVM and babashka it
-turns out you can get pretty close. This often doesn't matter in Clojure, bec
+There are two main problems with building CLI tools in Clojure:
+
+- GraalVM is an incredible technical achievement, but it’s hard to use, slow, and finicky. Some programs that work fine in JVM Clojure cannot be compiled w/GraalVM or can only be compiled after mucking with reflection configurations and other unpleasantries. Worse yet, you often don’t find out that your code doesn’t compile until you’ve waited through a ([potentially >15m](https://twitter.com/ArghZero/status/1480215787994775552)) GraalVM compile cycle
+- Developing Clojure CLI applications is cumbersome because you have to wait for a full JVM spin-up for each run. It’s only 1-2 seconds, but it adds up quickly
+
+This project aims to solve both of these by making it really easy to build CLI tools in Clojure that will definitely compile under GraalVM with no extra brain cells required on your part.
 
 ## The solution
-`bbb` is my attempt to get a similar workflow for Clojure. Goals:
 
-- An Easy and fast dev experience. 
-  
-  You should be able to re-run your CLI immediately and see any changes, no
-  waiting for compliation or waiting 2 seconds for the JVM to launch
-- Easy command-line parsing, with ergonomic support for infinitely nested
-  subcommands and long and short flags + help texts.
-- A good deploy story. 
+A good solution for this problem should have the following properties:
 
-  Once you're app is ready to distribute you should be able to create a single
-  fast-starting static binary that's as easy to use for your end-users as a
-  Golang binary built with `go build` would be
+- **An easy and fast dev experience**: You should be able to re-run your CLI immediately and see any changes, no waiting for compilation or waiting 2 seconds for the JVM to launch
+- **Easy command-line parsing**: ergonomic support for infinitely nested subcommands and long and short flags + help texts.
+- **A good deploy story**: once your app is ready to distribute it should be easy to create a single fast-starting static binary that’s you can deploy to your users without asking them to install any other software.
 
-This repo combines babashka, cli-matic, and GraalVM to get something pretty close to the above:
+Babashka and cli-matic to the rescue!
+
+[Babashka](https://github.com/borkdude/babashka) is a Clojure interpreter compiled under [GraalVM](https://www.graalvm.org/). Since Babashka itself is compiled with GraalVM, anything that runs in babashka will by definition also work under GraalVM. While we can’t make GraalVM more compatible, we can at least find out that a certain library or approach won’t work *early*.
+
+
+[cli-matic][cli-matic] is an easy to use library for ergonomically parsing command-line arguments and building complex CLI tools, even with nested subcommands, something that can be quite tricky with the standard Clojure CLI parsing toolkit. [Cli-matic][cli-matic] can run under babashka, but it requires some [pretty intense hackery][](https://github.com/borkdude/spartan.spec/blob/master/examples/cli_matic.clj#L1-L19). This project provides a standardized interface to [cli-matic][] that works the same way, regardless of whether it’s called from JVM Clojure or babashka.
+
+With these tools together, this project get you to something pretty close to the ideal solution above:
 
 - Use `babashka` during development for a quick iteration cycle and fast startup times
-- Use `cli-matic` to define the CLI parsing logic, and be sure it will work the
-  same in your `bb` testing and in the compiled static binary 
-- compile to a static binary through GralVM when ready, without having to spend
-  hours learning how to tweak GraalVM or finding out that some feature that
-  works fine in JVM Clojure is not compatible with GraalVM
+- Use `[cli-matic`][cli-matic] to define the CLI parsing logic, and be sure it will work the same in your `bb` testing and in the compiled static binary
+- Automate compiling your project into a static binary w/GraalVM, without having to spend hours learning how to tweak GraalVM or finding out that some feature that works fine in JVM Clojure is not compatible with GraalVM
 
+## Prerequisites
 
-## Prereqs
-- [babashka][1]
-- `clojure` / `clj` cli
-- [GraalVM][3] and it's `native-image` installed via `gu` 
+- `[babashka](https://github.com/borkdude/babashka)`
+- `[clojure](https://clojure.org/guides/getting_started)` / `[clj](https://clojure.org/guides/getting_started)` cli
+- [GraalVM](https://www.graalvm.org/) and it’s `native-image` installed via `gu`. You can install from their website, or if you trust my `bash`-ing, try these: 
+    
+  <details><summary>GraalVM CLI Installation instructions</summary>
+  <p>
+
+  - To start, paste the following into a terminal:
+    ```bash
+    install-graalvm() {
+      local platform="$(echo "$OS_PLATFORM" | tr '[:upper:]' '[:lower:]')"
+    
+      wget -O "/tmp/graalvm.tar.gz" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-$platform-amd64-21.1.0.tar.gz"
+      # cp /tmp/graalvm.tar.gz.bak /tmp/graalvm.tar.gz # for testing
+    
+      mkdir -p /tmp/graalvm/out
+      tar -C /tmp/graalvm/out -xvzf /tmp/graalvm.tar.gz
+      [[ -d ~/graalvm ]] && mv ~/graalvm ~/graalvm.bak
+      mv /tmp/graalvm/out/graalvm-ce-* ~/graalvm
+    
+      # install native-image binary
+      if [[ -d ~/graalvm/bin ]]; then
+        ~/graalvm/bin/gu install native-image
+      elif [[ -d ~/graalvm/Contents/Home/bin ]]; then # handle macos folder structure
+        ~/graalvm/Contents/Home/bin/gu install native-image
+      fi
+    
+      # cleanup
+      rm /tmp/graalvm.tar.gz
+    }
+    install-graalvm
+    ```
+    
+  - The above will install GraalVM for you. To activate it and make it
+    permanent, you'll also need to paste in this and add it to your
+    `~/.bashrc`/`~/.zshrc` file. 
+    
+    ```bash
+    graalvm-setup() {
+      if [[ "$CUR_PLATFORM" == "Darwin" ]]; then
+        local graal_home=
+        if [[ -d /Library/Java/JavaVirtualMachines/graalvm-ce-*/Contents/Home ]]; then
+          graal_home=(/Library/Java/JavaVirtualMachines/graalvm-ce-*/Contents/Home)
+        fi
+        if [[ -d "$graal_home" ]]; then
+          export GRAALVM_HOME="$graal_home"
+        fi
+      fi
+      if [[ -d ~/graalvm/bin ]]; then
+        export GRAALVM_HOME="$HOME/graalvm"
+      elif [[ -d ~/graalvm/Contents/Home/bin ]]; then
+        export GRAALVM_HOME="$HOME/graalvm/Contents/Home"
+      fi
+      if [[ -n "$GRAALVM_HOME" ]]; then
+        add-to-path "$GRAALVM_HOME/bin"
+      fi
+    }
+    graalvm-setup
+    ```
+  </details>
+    
 
 ## Usage
 
-1. Clone this repo, and run `git submodule update --init --recursive` inside it
-2. Add your code under the `src/` folder using the standard Clojure folder
-   structure, using a namespace and a `-main` function
-3. Edit `deps.edn` and change the "example.core" under (get-in [:aliases
-   :native-image :main-opts]) to use your project's namespace
-3. Require bbb.core from your project's namespace (add `(:require [bbb.core])`
-   to your `ns` macro)
-4. To run your project, use `bb -m <your-namespace>`
-5. To compile your project, do `clj -A:native-image`, and your project will be
-   compiled to `bb`.
+### Prepare your project
 
-   You can also compile a different namesapce by doing `clj -A:native-image '{:main-ns "some.otherns"}`
+1. Clone this repo
+2. Add your code under the `src/` folder using the standard Clojure folder structure, using a namespace and a `main` function
+    1. If you plan to use [`cli-matic`][cli-matic] (recommended) to parse your CLI options, require it from `bbb.core` (see `example.core`)
+3. Edit `deps.edn` and change the `:main-ns` key (under `:aliases` → `:native-image` → `:exec-args` → `:main-ns`) the “example.core” under :aliases :native-image :main-opts to use your project’s namespace
 
+1. To run your project, use `bb -m <your-namespace>`
+2. To compile your project, do `clj -A:native-image`, and your project will be compiled to `bb`.
+    
+    You can also compile a different namesapce by doing `clj -A:native-image '{:main-ns "some.otherns"}`
+    
 
-### run
-`clojure`
+### Running your project (dev mode)
 
-### build native image:
+You can run your project with babashka at any time by doing the following (replacing `example.core` with the name of your own namespace if you’ve created one)
+
 ```
-clj -A:native-image
+bb -m example.core
 ```
 
-[1]: https://github.com/borkdude/babashka
-[2]: https:// 
-[3]: https://
+Any additional command-line parameters will be passed to your project for parsing by cli-matic:
+
+```bash
+$ bb -m example.core so many args --example cool
+I was called as an example with args:
+({:example cool, :_arguments [so many args]})
+```
+
+If you want to verify that you haven’t broken JVM Clojure compatibility you can also run the equivalent JVM Clojure command:
+
+```bash
+clj -m <your-ns-with-a-main-fn>
+```
+
+### Compiling your project to a static binary
+
+If you have GraalVM installed correctly, compiling your project is as simple as:
+
+```
+clj -X:native-image
+```
+
+This will compile your project based on the namespace set in `deps.edn`'s `:main-ns` key (under `:aliases` → `:native-image` → `:exec-args` → `:main-ns`).
+
+You can also override the `:main-ns` configured in `deps.edn` from the command line:
+
+```bash
+clj -X:native-image '{:main-ns "some-other-namespace.core"}'
+```
+
+### Adding dependencies
+
+You can add maven dependencies to your `deps.edn` file in the same way as you would for any other tools.deps-based project. Not all libraries will work correctly under babashka/GraalVM, but adding them to `deps.edn` will give you the chance to quickly find out if the library you’re interested in will work or not.
+
+<!-- 
+just some handy vim macros
+
+yst ]f]a[cli-matic
+yst ]f]a[babashka
+-->
+
+[babashka]: https://github.com/borkdude/babashka
+[clj]: https://clojure.org/guides/getting_started 
+[cli-matic]: https://github.com/l3nz/cli-matic
+[graalvm]: https://www.graalvm.org/
+

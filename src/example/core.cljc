@@ -11,5 +11,6 @@
             :opts        [{:as "example" :option "example" :short "e"
                            :type :string}]
             :runs (fn [& args]
-                    (println "I was called as an example with args: " args))}))
+                    (println "I was called as an example with args: ")
+                    (println args))}))
 
