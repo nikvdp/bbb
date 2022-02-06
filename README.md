@@ -100,7 +100,7 @@ With these tools together, this project can get you pretty close to the good sol
         export GRAALVM_HOME="$HOME/graalvm/Contents/Home"
       fi
       if [[ -n "$GRAALVM_HOME" ]]; then
-        add-to-path "$GRAALVM_HOME/bin"
+        export PATH="$GRAALVM_HOME/bin:$PATH"
       fi
     }
     graalvm-setup
