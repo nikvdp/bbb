@@ -34,7 +34,7 @@ Babashka and cli-matic to the rescue!
 
 [cli-matic][cli-matic] is an easy to use library for ergonomically parsing command-line arguments and building complex CLI tools, even with nested subcommands, something that can be quite tricky with the standard Clojure CLI parsing toolkit. [cli-matic][cli-matic] can run under babashka, but it requires some [pretty intense hackery](https://github.com/borkdude/spartan.spec/blob/master/examples/cli_matic.clj#L1-L19). This project provides a standardized interface to [cli-matic][] that works the same way, regardless of whether it’s called from JVM Clojure or babashka.
 
-With these tools together, this project get you to something pretty close to the ideal solution above:
+With these tools together, this project can get you pretty close to the good solution above:
 
 - Use [`babashka`][babashka] during development for a quick iteration cycle and
   fast startup times
