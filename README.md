@@ -56,7 +56,7 @@ With these tools together, this project can get you pretty close to the good sol
   - To start, paste the following into a terminal:
     ```bash
     install-graalvm() {
-      local platform="$(echo "$OS_PLATFORM" | tr '[:upper:]' '[:lower:]')"
+      local platform="$(echo "$(uname)" | tr '[:upper:]' '[:lower:]')")
     
       wget -O "/tmp/graalvm.tar.gz" "https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-$platform-amd64-21.1.0.tar.gz"
       # cp /tmp/graalvm.tar.gz.bak /tmp/graalvm.tar.gz # for testing
@@ -85,7 +85,7 @@ With these tools together, this project can get you pretty close to the good sol
     
     ```bash
     graalvm-setup() {
-      if [[ "$CUR_PLATFORM" == "Darwin" ]]; then
+      if [[ "$(uname)" == "Darwin" ]]; then
         local graal_home=
         if [[ -d /Library/Java/JavaVirtualMachines/graalvm-ce-*/Contents/Home ]]; then
           graal_home=(/Library/Java/JavaVirtualMachines/graalvm-ce-*/Contents/Home)
