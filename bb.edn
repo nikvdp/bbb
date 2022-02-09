@@ -1,4 +1,28 @@
-{:aliases {:native-image
+{:tasks {:init (def MAIN-NS "example.core")
+
+         run (do
+               (require [(symbol MAIN-NS)])
+               (apply
+                (ns-resolve (find-ns (symbol MAIN-NS)) (symbol "-main"))
+                *command-line-args*))
+
+         run-clj {:deps [ensure-bb-submodule]
+                  :task (deref (process (concat ["clj" "-m" MAIN-NS] *command-line-args*)
+                                        {:inherit true}))}
+
+         build {:deps [ensure-bb-submodule]
+                :task (shell (str "clj -X:native-image '{:main-ns \"" MAIN-NS "\"} "))}
+
+         native-image (babashka.tasks/run "build")
+
+         ensure-bb-submodule (shell "git submodule update --init --recursive")
+
+         :requires [[babashka.process :refer [process]]
+                    [bbb.core :as bbb]
+                    [clojure.java.io :as io]
+                    [babashka.fs :as fs]]}
+
+ :aliases {:native-image
            {:exec-args {:main-ns "example.core"}
             :exec-fn bbb.dep-edn-alias/tools-deps-entrypoint
             :jvm-opts ["-Dclojure.compiler.direct-linking=true"
