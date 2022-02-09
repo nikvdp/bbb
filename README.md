@@ -32,8 +32,8 @@ Babashka and cli-matic to the rescue!
 
 With these tools together, this project can get you pretty close to the good solution above:
 
-- Use `[babashka](https://github.com/borkdude/babashka)` during development for a quick iteration cycle and fast startup times
-- Use `[cli-matic](https://github.com/l3nz/cli-matic)` to define the CLI parsing logic, and be confident that it will work the same way in the compiled static binary
+- Use [`babashka`](https://github.com/borkdude/babashka) during development for a quick iteration cycle and fast startup times
+- Use [`cli-matic`](https://github.com/l3nz/cli-matic) to define the CLI parsing logic, and be confident that it will work the same way in the compiled static binary
 - Automatically compile your project into a static binary with GraalVM. No need to spend hours learning how to tweak Graal or finding out that some feature that works fine in JVM Clojure is not compatible with GraalVM
 
 ## Prerequisites
