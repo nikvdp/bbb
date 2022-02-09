@@ -11,11 +11,30 @@
                                         {:inherit true}))}
 
          build {:deps [ensure-bb-submodule]
-                :task (shell (str "clj -X:native-image '{:main-ns \"" MAIN-NS "\"} "))}
+                :task (shell {:extra-env EXTRA_ENV}
+                             (str "clj -X:native-image '{:main-ns \"" MAIN-NS "\"} "))}
 
          native-image (babashka.tasks/run "build")
 
          ensure-bb-submodule (shell "git submodule update --init --recursive")
+
+         ensure-graalvm {:deps [ensure-bb-submodule]
+                         :task (when-not
+                                (->> "which native-image"
+                                     (shell (conj {:continue true :extra-env EXTRA_ENV}))
+                                     (:exit)
+                                     (= 0))
+                                 (bbb/install-graalvm-locally (str (fs/canonicalize "vendor/graalvm"))))}
+
+         :enter (let [suffix (when (= (System/getProperty "os.name") "Mac OS X") "/Contents/Home")
+                      graalpath (str (fs/canonicalize (str "vendor/graalvm" suffix)))]
+                  (def LOCAL_GRAAL (when (-> (str graalpath "/bin/native-image") io/file .exists)
+                                     (str (fs/canonicalize graalpath))))
+                  (def EXTRA_ENV
+                    (if LOCAL_GRAAL
+                      {"PATH" (str graalpath "/bin" ":" (System/getenv "PATH"))
+                       "GRAALVM_HOME" graalpath}
+                      {})))
 
          :requires [[babashka.process :refer [process]]
                     [bbb.core :as bbb]
