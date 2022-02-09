@@ -6,25 +6,26 @@
                 (ns-resolve (find-ns (symbol MAIN-NS)) (symbol "-main"))
                 *command-line-args*))
 
-         run-clj {:deps [ensure-bb-submodule]
+         run-clj {:depends [ensure-bb-submodule]
                   :task (deref (process (concat ["clj" "-m" MAIN-NS] *command-line-args*)
                                         {:inherit true}))}
 
-         build {:deps [ensure-bb-submodule]
+         build {:depends [ensure-bb-submodule ensure-graalvm]
                 :task (shell {:extra-env EXTRA_ENV}
                              (str "clj -X:native-image '{:main-ns \"" MAIN-NS "\"} "))}
 
-         native-image (babashka.tasks/run "build")
+         native-image {:depends [build]}
 
          ensure-bb-submodule (shell "git submodule update --init --recursive")
 
-         ensure-graalvm {:deps [ensure-bb-submodule]
-                         :task (when-not
+         ensure-graalvm {:task (when-not
                                 (->> "which native-image"
                                      (shell (conj {:continue true :extra-env EXTRA_ENV}))
                                      (:exit)
                                      (= 0))
-                                 (bbb/install-graalvm-locally (str (fs/canonicalize "vendor/graalvm"))))}
+                                 (babashka.tasks/run "install-graalvm"))}
+
+         install-graalvm (bbb/install-graalvm-locally (str (fs/canonicalize "vendor/graalvm")))
 
          :enter (let [suffix (when (= (System/getProperty "os.name") "Mac OS X") "/Contents/Home")
                       graalpath (str (fs/canonicalize (str "vendor/graalvm" suffix)))]
