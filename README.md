@@ -92,9 +92,9 @@ You can add maven dependencies to your `deps.edn` file in the same way as you wo
 
 ## Limitations
 
-- Currently GraalVM only supports intel processors, so you can’t compile native arm64/Apple Silicon CLIs. In practice this is usually fine since the intel versions will run under rosetta2
+- Currently GraalVM on macOS only supports intel processors, so you can’t compile native arm64/Apple Silicon CLIs. In practice this is usually fine since the intel versions will run under rosetta2 though.
 - No windows support (for now at least, though this approach should theoretically work on Windows too)
-- No cross-compilation support, to compile a macOS binary you’ll need a mac and to compile a Linux binary you’ll need a Linux machine
+- No cross-compilation support, to compile a macOS binary you’ll need a mac and to compile a Linux binary you’ll need a Linux box.
 
 ## Further work
 
