@@ -38,8 +38,8 @@ With these tools together, this project can get you pretty close to the good sol
 
 ## Prerequisites
 
-- `[babashka](https://github.com/borkdude/babashka)`
-- The `[clojure](https://clojure.org/guides/getting_started)` and `[clj](https://clojure.org/guides/getting_started)` cli tools
+- [`babashka`](https://github.com/borkdude/babashka)
+- The [`clojure`](https://clojure.org/guides/getting_started) and [`clj`](https://clojure.org/guides/getting_started) cli tools
 - (optional) [GraalVM](https://www.graalvm.org/) and it’s `native-image` component installed via `gu`. 
 
 If `bbb` can’t find a system-wide GraalVM installation it will attempt to download one into the `vendor/` folder for you and use that. **This is experimental** and requires that you have `wget` installed.
@@ -51,7 +51,7 @@ If `bbb` can’t find a system-wide GraalVM installation it will attempt to down
 1. Clone this repo
 2. Run `git submodule update --init --recursive` to pull in babashka’s source.
 3. Add your code under the `src/` folder using the standard Clojure folder structure, and make sure the namespace you’ll be using as your app’s entrypoint has a `main` function.
-    - If you plan to use `[cli-matic](https://github.com/l3nz/cli-matic)` (recommended) to parse your CLI options, require `run-cmd` from `bbb.core` (see `example.core` for an example)
+    - If you plan to use [`cli-matic`](https://github.com/l3nz/cli-matic) (recommended) to parse your CLI options, require `run-cmd` from `bbb.core` (see `example.core` for an example)
     - **Make sure to add `(:gen-class)` to your namespace’s `(ns)` macro** to prevent head-scratch inducing GraalVM related issues later!
 4. Edit `bb.edn` and change the `MAIN-NS` declaration at the top to point to your own namespace (it’s set to `example.core` by default)
 
