@@ -71,8 +71,12 @@ install-graalvm() {
 }
 install-graalvm
        ")]
-       (print "👉 GraalVM's `native-image` tool not found on PATH, attempt to install a copy to vendor/ folder? (y/n) ")
-       (flush)
-       (let [resp (read-line)]
-         (when (-> resp (st/lower-case) (st/starts-with? "y"))
-           @(process ["bash"] {:in install :inherit true}))))))
+
+       (if (System/getenv "BBB_AUTOGRAAL_NOINTERACTIVE")
+         @(process ["bash"] {:in install :inherit true})
+         (do
+           (print "👉 GraalVM's `native-image` tool not found on PATH, attempt to install a copy to vendor/ folder? (y/n) ")
+           (flush)
+           (let [resp (read-line)]
+             (when (-> resp (st/lower-case) (st/starts-with? "y"))
+               @(process ["bash"] {:in install :inherit true}))))))))
