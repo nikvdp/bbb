@@ -51,8 +51,9 @@
 install-graalvm() {
   local platform=\"$(echo \"$(uname)\" | tr '[:upper:]' '[:lower:]')\"
   local dest='" dest "'
+  local arch=\"$(case $(uname -m) in x86_64)echo amd64;;arm64|aarch64)echo aarch64;esac)\"
 
-  wget -O \"/tmp/graalvm.tar.gz\" \"https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-$platform-amd64-21.1.0.tar.gz\"
+  wget -O \"/tmp/graalvm.tar.gz\" \"https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.1.0/graalvm-ce-java11-$platform-$arch-21.1.0.tar.gz\"
 
   mkdir -p /tmp/graalvm/out \"$dest\"
   tar -C /tmp/graalvm/out -xvzf /tmp/graalvm.tar.gz

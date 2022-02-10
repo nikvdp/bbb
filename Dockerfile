@@ -1,9 +1,11 @@
-# an example of how you might dockerize a CLI built with bbb. 
-# Building this Dockerfile will create a container image that runs 
+# an example of how you might dockerize a CLI built with bbb.
+# Building this Dockerfile will create a container image that runs
 # the bbb cli in this folder.
 
-# You can also use this image to build a Linux binary of your CLI from an Intel
-# mac, to do this, run the following commands;
+# You can also use this image to build a Linux binary of your CLI from a Mac or
+# Windows machine. (NOTE: this may not work on M1 macs, or may work but result
+# in a Linux aarch64 binary)
+# To do this, run the following commands:
 
 # docker build . -t bbb
 # docker run --entrypoint /bin/bash bbb -c 'cat /example-cli' > example-cli
@@ -14,7 +16,7 @@ FROM ubuntu:focal as build
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y build-essential wget clojure git curl 
+    apt-get install -y build-essential wget clojure git curl
 
 # install clojure with all tools
 RUN curl -O https://download.clojure.org/install/linux-install-1.10.3.1075.sh && \
@@ -39,4 +41,5 @@ FROM ubuntu:focal
 
 COPY --from=build /build/bb /example-cli
 
-ENTRYPOINT /example-cli 
+ENTRYPOINT /example-cli
+
