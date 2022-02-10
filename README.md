@@ -102,7 +102,7 @@ You can add maven dependencies to your `deps.edn` file in the same way as you wo
 - [ ] Figure out how to customize the name of the emitted binary. Normally GraalVM allows you to pass an `-H:Name=` flag, but for reasons I don’t yet understand babashka’s own `-H:Name=` flag is taking precedence.
 - [ ] Create a more comprehensive example illustrating how to do cool cli-matic-y things (eg subcommands)
 - [ ] Find a better solution to importing the babashka namespaces and GraalVM fixes (these were provided by [@borkdude](https://github.com/borkdude) [here](https://twitter.com/borkdude/status/1480464513434537985?s=20&t=6Thavc6OjTjclYJ9RQEWyQ)) than git submodules.
-- [ ] Add a bb.edn task to automate the building of a babashka and/or JVM compatible uberjar for when you don't need to go full Graal mode.
+- [X] Add a bb.edn task to automate the building of a babashka and/or JVM compatible uberjar for when you don't need to go full Graal mode.
 
 ## Contributing / How to help
 

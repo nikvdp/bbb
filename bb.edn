@@ -11,7 +11,7 @@
                                         {:inherit true}))}
 
          build {:depends [ensure-bb-submodule ensure-graalvm]
-                :task (shell {:extra-env EXTRA_ENV}
+                :task (shell {:extra-env EXTRA-ENV}
                              (str "clj -X:native-image '{:main-ns \"" MAIN-NS "\"} "))}
 
          native-image {:depends [build]}
@@ -20,19 +20,41 @@
 
          ensure-graalvm {:task (when-not
                                 (->> "which native-image"
-                                     (shell (conj {:continue true :extra-env EXTRA_ENV}))
+                                     (shell {:continue true
+                                             :out nil :err nil
+                                             :extra-env EXTRA-ENV})
                                      (:exit)
                                      (= 0))
                                  (babashka.tasks/run "install-graalvm"))}
+
+         uberjar-bb (do (shell "mkdir -p classes/")
+                        (println "bbb: Compiling" MAIN-NS)
+                        (deref (process ["clj" "-e"
+                                         (str "(require '" MAIN-NS ")"
+                                              "(compile '" MAIN-NS ")")]))
+                        (println "bbb: Building uberjar to" (str MAIN-NS ".jar"))
+                        (deref (process ["bb" "-cp" (str (->> (shell {:out :string} "clojure -Spath")
+                                                              :out str/trim)
+                                                         ":classes")
+                                         "uberjar"
+                                         (str MAIN-NS ".jar") "-m" MAIN-NS])))
+
+         uberjar-clj (do (deref (process ["clj" "-X:uberjar" ":jar" (str MAIN-NS ".jar")
+                                          ":main-class" MAIN-NS]
+                                         {:inherit true})))
+
+         uberjar (do
+                   (println "bbb: Building a JVM Clojure uberjar, use uberjar-bb instead for a babashka uberjar")
+                   (babashka.tasks/run "uberjar-clj"))
 
          install-graalvm (bbb/install-graalvm-locally (str (fs/canonicalize "vendor/graalvm")))
 
          :enter (let [suffix (when (= (System/getProperty "os.name") "Mac OS X") "/Contents/Home")
                       graalpath (str (fs/canonicalize (str "vendor/graalvm" suffix)))]
-                  (def LOCAL_GRAAL (when (-> (str graalpath "/bin/native-image") io/file .exists)
-                                     (str (fs/canonicalize graalpath))))
-                  (def EXTRA_ENV
-                    (if LOCAL_GRAAL
+                  (def LOCAL-GRAAL (when (-> (str graalpath "/bin/native-image") io/file .exists)
+                                     (-> graalpath fs/canonicalize str)))
+                  (def EXTRA-ENV
+                    (if LOCAL-GRAAL
                       {"PATH" (str graalpath "/bin" ":" (System/getenv "PATH"))
                        "GRAALVM_HOME" graalpath}
                       {})))
@@ -40,6 +62,7 @@
          :requires [[babashka.process :refer [process]]
                     [bbb.core :as bbb]
                     [clojure.java.io :as io]
+                    [clojure.string :as str]
                     [babashka.fs :as fs]]}
 
  :aliases {:native-image
@@ -50,7 +73,13 @@
             :extra-deps
             {clj.native-image/clj.native-image
              {:git/url "https://github.com/taylorwood/clj.native-image.git"
-              :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}}
+              :sha "4604ae76855e09cdabc0a2ecc5a7de2cc5b775d6"}}}
+
+           :uberjar
+           {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
+            :exec-fn      hf.depstar/uberjar
+            :exec-args    {:jar "uber.jar"
+                           :aot true}}}
  :paths ["src"]
  :deps {borkdude/spartan.spec {:git/url "https://github.com/borkdude/spartan.spec"
                                :sha "12947185b4f8b8ff8ee3bc0f19c98dbde54d4c90"}
