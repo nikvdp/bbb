@@ -2,7 +2,32 @@
 
 A low friction, quick and easy way to develop CLI tools in Clojure that you can distribute as self-contained static binaries (babashka-bins) for macOS and Linux (windows support coming eventually).
 
-`bbb` lets you take a standard Clojure project layout, run it under both JVM Clojure and [babashka](https://github.com/babashka/babashka), and then automates the compilation of your project into a static binary with GraalVM for you when it’s time to distribute it.
+BabashkaBins lets you take a standard Clojure project layout, run it under both JVM Clojure and [babashka](https://github.com/babashka/babashka), and then automates the compilation of your project into a static binary with GraalVM for you when it’s time to distribute it.
+
+## Quickstart
+
+1. Clone this repo recursively:
+    ```bash
+    git clone --recursive https://github.com/nikvdp/bbb
+    ```
+    (if you've already cloned it you can also do `git submodule update --init --recursive` at any time to pull in the needed submodules)
+3. Add your code under the `src/` folder using the standard Clojure folder structure, and make sure the namespace you’ll be using as your app’s entrypoint has a `-main` function. See [`src/example/core.clj`](https://github.com/nikvdp/bbb/blob/master/src/example/core.clj) for an example
+    * If you plan to use [`cli-matic`](https://github.com/l3nz/cli-matic) (recommended) to parse your CLI options, require `run-cmd` from `bbb.core` (see [`src/example/core.clj`](https://github.com/nikvdp/bbb/blob/master/src/example/core.clj) for an example)
+    * **Make sure to add `(:gen-class)` to your namespace’s `(ns)` macro** to prevent head-scratch inducing GraalVM related issues later!
+4. Edit `bb.edn` and change the `MAIN-NS` declaration at the top to point to your own namespace (it’s set to `example.core` by default)
+5. Run your app:
+    ```bash
+    bb run
+    ```
+5. Optionally, test it under JVM clojure:
+    ```bash
+    bb run-clj
+    ```    
+6. When you are ready to distribute it to your users as a native image/static binary, compile it:
+    ```bash
+    bb native-image
+    ```
+    If you don't have GraalVM installed BabashkBins will attempts to download and install a copy under the `vendor` directory. The native image/static binary will be created at `./bb`
 
 ## The problem
 
@@ -42,7 +67,7 @@ With these tools together, this project can get you pretty close to the good sol
 - The [`clojure`](https://clojure.org/guides/getting_started) and [`clj`](https://clojure.org/guides/getting_started) cli tools
 - (optional) [GraalVM](https://www.graalvm.org/) and it’s `native-image` component installed via `gu`. 
 
-If `bbb` can’t find a system-wide GraalVM installation it will attempt to download one into the `vendor/` folder for you and use that. **This is experimental** and requires that you have `wget` installed.
+If BabashkaBins can’t find a system-wide GraalVM installation it will attempt to download one into the `vendor/` folder for you and use that. **This is experimental** and requires that you have `wget` installed.
 
 ## Usage
 
@@ -51,13 +76,13 @@ If `bbb` can’t find a system-wide GraalVM installation it will attempt to down
 1. Clone this repo
 2. Run `git submodule update --init --recursive` to pull in babashka’s source.
 3. Add your code under the `src/` folder using the standard Clojure folder structure, and make sure the namespace you’ll be using as your app’s entrypoint has a `-main` function.
-    - If you plan to use [`cli-matic`](https://github.com/l3nz/cli-matic) (recommended) to parse your CLI options, require `run-cmd` from `bbb.core` (see `example.core` for an example)
+    - If you plan to use [`cli-matic`](https://github.com/l3nz/cli-matic) (recommended) to parse your CLI options, require `run-cmd` from `bbb.core` (see [`src/example/core.clj`](https://github.com/nikvdp/bbb/blob/master/src/example/core.clj) for an example)
     - **Make sure to add `(:gen-class)` to your namespace’s `(ns)` macro** to prevent head-scratch inducing GraalVM related issues later!
 4. Edit `bb.edn` and change the `MAIN-NS` declaration at the top to point to your own namespace (it’s set to `example.core` by default)
 
 ### Running your project (dev mode)
 
-You can run your project with babashka at any time by doing the following:
+You can run your project in interpreted mode with babashka at any time by doing the following:
 
 ```
 bb run
@@ -92,7 +117,7 @@ You can add maven dependencies to your `deps.edn` file in the same way as you wo
 
 ## Limitations
 
-- Currently GraalVM on macOS only supports Intel processors, so you can’t compile native arm64/Apple Silicon CLIs. In practice this is usually fine since the Intel versions will run under Rosetta 2 though.
+- Currently GraalVM on macOS only supports Intel processors, so you can’t compile native arm64/Apple Silicon CLIs. In practice this is usually fine since the Intel versions will run under Rosetta 2.
 - No Windows support (for now at least, though this approach should theoretically work on Windows too)
 - No cross-compilation support, to compile a macOS binary you’ll need a Mac and to compile a Linux binary you’ll need a Linux box.
 
