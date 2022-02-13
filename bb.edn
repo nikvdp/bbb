@@ -66,9 +66,11 @@
                     [babashka.fs :as fs]]}
 
  :aliases {:native-image
-           {:exec-args {:main-ns "example.core"}
+           {:exec-args {:main-ns "example.core"} ;; example.core is a default, is overridden by MAIN-NS
             :exec-fn bbb.dep-edn-alias/tools-deps-entrypoint
             :jvm-opts ["-Dclojure.compiler.direct-linking=true"
+                       ;; ;; consider uncommenting the below options when building in docker or low mem envs
+                       ;; "-Dnative" "-Dnative-image.docker-build=true" "-Dnative-image.xmx=4g"
                        "-Dclojure.spec.skip-macros=true"]
             :extra-deps
             {clj.native-image/clj.native-image
